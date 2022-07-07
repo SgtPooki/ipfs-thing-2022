@@ -1,0 +1,33 @@
+on: [ push, pull_request ]
+
+name: Publish events JSON
+jobs:
+  validate-toml:
+    uses: ./.github/workflows/toml-validate.yml
+
+  publish-json:
+    needs: [validate-toml]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/github-script@v6
+        id: event-json
+        with:
+          script: |
+            const { loadEvents } = await import('${{ github.workspace }}/website/lib/data.js')
+            const events = await loadEvents()
+            const eventsJSON = JSON.stringify(events, null, 2)
+
+            console.log(eventsJSON)
+            return events
+
+      - name: Save JSON
+        run: |
+          echo "${{steps.event-json.outputs.result}}" > events-${{ github.sha }}.json
+
+      - name: Attach JSON artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: events-${{ github.sha }}.json
+          path: events-${{ github.sha }}.json
+          if-no-files-found: error
