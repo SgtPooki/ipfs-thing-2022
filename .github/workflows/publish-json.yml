@@ -20,11 +20,12 @@ jobs:
 
       - name: Create events JSON
         run: |
-          node -e "import('../website/lib/data.js').then(async ({loadEvents}) => { const events = await loadEvents(); console.log(JSON.stringify(events, null, 2)); })" > events-${{ github.sha }}.json
+          cd website
+          node -e "import('./lib/data.js').then(async ({loadEvents}) => { const events = await loadEvents(); console.log(JSON.stringify(events, null, 2)); })" > ${{ github.workspace }}/events-${{ github.sha }}.json
 
       - name: Attach JSON artifact
         uses: actions/upload-artifact@v2
         with:
           name: events-${{ github.sha }}.json
-          path: events-${{ github.sha }}.json
+          path: ${{ github.workspace }}/events-${{ github.sha }}.json
           if-no-files-found: error
