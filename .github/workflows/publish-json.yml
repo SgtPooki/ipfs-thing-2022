@@ -15,7 +15,7 @@ jobs:
           node-version: "16.x"
       - name: NPM Install
         run: |
-          npm install
+          cd website && npm install
 
       - uses: actions/github-script@v6
         id: event-json
